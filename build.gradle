@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.5'
     }
 }
 
@@ -12,19 +12,47 @@ apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
-apply plugin: 'bintray'
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'com.jfrog.bintray'
 
-version = '0.1'
+version = '0.1.1'
 group = 'org.jboss.arquillian.gradle'
 
 repositories {
     mavenCentral()
+	/*maven {
+	  url 'http://repo1.maven.org/maven2'
+	}*/
 }
+
+/*
+def versionOverrides = [
+    //"asm:asm": "3.3.1"
+	'org.codehaus.groovy:groovy-all':'2.3.6'
+]
+ 
+subprojects {
+ 
+    configurations.all {
+ 
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+ 
+            def overrideVersion = versionOverrides[details.requested.group + ":" + details.requested.name]
+ 
+            if (overrideVersion != null && details.requested.version != overrideVersion) {
+                logger.info "Overriding dependency ${details.requested.group}:${details.requested.name} version ${details.requested.version} --> $overrideVersion"
+                details.useVersion overrideVersion
+            }
+        }
+    }
+}
+*/
 
 dependencies {
     compile localGroovy()
-    compile gradleApi()
-    testCompile 'org.spockframework:spock-core:0.6-groovy-1.8'
+    //compile gradleApi()
+	testCompile 'org.codehaus.groovy:groovy-all:2.3.6'
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
 
 sourceSets {
@@ -61,6 +89,16 @@ artifacts {
 }
 
 publishing {
+    repositories {
+        maven {
+            // change to point to your repo, e.g. http://my.org/repo
+            url nexusThirdParty
+            credentials {
+                username nexusUser
+                password nexusPassword
+            }
+        }
+	}
     publications {
         mavenJava(MavenPublication) {
             from components.java
@@ -92,8 +130,9 @@ publishing {
     }
 }
 
+
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.7'
+    gradleVersion = '2.2.1'
 }
 
 idea {
